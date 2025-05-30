@@ -55,7 +55,7 @@ jobs:
             release_tags_to_grep_list=$(echo "$RELEASE_TAGS_JSON" | jq -r '.[]')
           fi
 
-          echo "$target_tags" | while IFS= read -r tag_to_check; do
+          echo "$target_tags" | while read tag_to_check; do
             is_release_tag=false
 
             if [ -n "$release_tags_to_grep_list" ]; then
