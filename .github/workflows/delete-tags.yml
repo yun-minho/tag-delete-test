@@ -48,4 +48,4 @@ jobs:
         run: |
           # git fetch origin --tags
           target_tags=$(git tag -l "${TARGET_PREFIX}")
-          
+          echo $target_tags
