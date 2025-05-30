@@ -32,8 +32,8 @@ jobs:
 
       - name: Fetch release tags
         id: fetch-release-tags
-        # env:
-        #   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           release_tags_output_string=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[].tag_name]')
           echo "release_tags_json=$release_tags_output_string" >> "$GITHUB_OUTPUT"
@@ -49,14 +49,11 @@ jobs:
             echo "No tags found matching prefix '${TARGET_PREFIX}'."
             exit 0
           fi
-          echo $target_tags
 
           release_tags_to_grep_list=""
           if [ -n "$RELEASE_TAGS_JSON" ] && [ "$RELEASE_TAGS_JSON" != "[]" ]; then
             release_tags_to_grep_list=$(echo "$RELEASE_TAGS_JSON" | jq -r '.[]')
           fi
-          echo $RELEASE_TAGS_JSON
-          echo $release_tags_to_grep_list
 
           echo "$target_tags" | while IFS= read -r tag_to_check; do
             is_release_tag=false
@@ -69,7 +66,7 @@ jobs:
 
             if ! $is_release_tag; then
                 echo "DELETE non-release tag: $tag_to_check"
-                # git push origin --delete "$tag_to_check"
+                git push origin --delete "$tag_to_check"
             else 
                 echo "Skipping release tag: $tag_to_check"
             fi
