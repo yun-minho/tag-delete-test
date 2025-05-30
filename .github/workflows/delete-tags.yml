@@ -46,6 +46,6 @@ jobs:
           TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
           RELEASE_TAGS: ${{ steps.fetch-release-tags.outputs.release_tags_json }}
         run: |
-          # git fetch origin --tags
+          git fetch origin --tags
           target_tags=$(git tag -l "${TARGET_PREFIX}")
           echo $target_tags
