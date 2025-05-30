@@ -44,8 +44,20 @@ jobs:
       - name: Delete old tags
         env:
           TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
-          RELEASE_TAGS: ${{ steps.fetch-release-tags.outputs.release_tags_json }}
+          RELEASE_TAGS_JSON: ${{ steps.fetch-release-tags.outputs.release_tags_json }}
         run: |
-          # git fetch origin --tags
-          target_tags=$(git tag -l "${TARGET_PREFIX}*")
-          echo $target_tags
+          target_tags=$(git tag -l "$TARGET_PREFIX*")
+
+          if [ -z "$target_tags" ]; then
+            echo "No tags found matching prefix '${TARGET_PREFIX}'."
+            exit 0
+          fi
+
+          release_tags_to_grep_list=""
+          if [ "$RELEASE_TAGS_JSON" != "[]" ] then
+            release_tags_to_grep_list=$(echo $RELEASE_TAGS_JSON | jq -r '.[]')
+          fi
+          echo $RELEASE_TAGS_JSON
+          echo $release_tags_to_grep_list
+
+
