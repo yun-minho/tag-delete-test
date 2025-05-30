@@ -67,10 +67,13 @@ jobs:
           echo "$target_tags" | while IFS= read -r tag_to_check; do
             is_release_tag=false
 
-            echo $tag_to_check
-
             if [ -n "$release_tags_to_grep_list" ]; then
-              echo "$release_tags_to_grep_list" | grep -Fxq "$tag_to_check"
+              if echo "$release_tags_to_grep_list" | grep -Fxq "$tag_to_check"; then
+                is_release_tag=true
+              fi
             fi
+
+            echo $tag_to_check
+            echo $is_release_tag
           done
 
