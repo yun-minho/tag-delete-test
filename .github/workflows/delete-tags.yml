@@ -8,12 +8,6 @@ on:
     - cron: '0 0 1 7 *' #　毎年７月１日午前０時（UTC）に実行
   workflow_dispatch: # 動作確認用
 
-# defaults:
-#   run:
-#     # 明示的に指定するとpipefailなどが有効になるので指定する
-#     # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#defaultsrunshell
-#     shell: bash
-
 jobs:
   delete_old_tags:
     runs-on: ubuntu-latest
@@ -73,7 +67,11 @@ jobs:
               fi
             fi
 
-            echo $tag_to_check
-            echo $is_release_tag
+            if ! $is_release_tag; then
+                echo "DELETE non-release tag: $tag_to_check"
+                # git push origin --delete "$tag_to_check"
+            else 
+                echo "Skipping release tag: $tag_to_check"
+            fi
           done
 
