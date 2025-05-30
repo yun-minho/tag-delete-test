@@ -54,8 +54,8 @@ jobs:
           fi
 
           release_tags_to_grep_list=""
-          if [ "$RELEASE_TAGS_JSON" != "[]" ] then
-            release_tags_to_grep_list=$(echo $RELEASE_TAGS_JSON | jq -r '.[]')
+          if [ -n "$RELEASE_TAGS_JSON" ] && [ "$RELEASE_TAGS_JSON" != "[]" ]; then
+            release_tags_to_grep_list=$(echo "$RELEASE_TAGS_JSON" | jq -r '.[]')
           fi
           echo $RELEASE_TAGS_JSON
           echo $release_tags_to_grep_list
