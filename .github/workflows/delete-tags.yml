@@ -1,6 +1,6 @@
 # 古いコミットタグを定期的に削除するワークフロー
 # 実行時間の年基準で2年前のもので、リリースタグとして使われないタグを削除する
-# 例）　２０２５/07/01 に実行された場合、2023から始まるタグの中でリリースタグとして使わないもののみを削除
+# 例）　２０２５/07/01 に実行された場合、2023から始まるタグの中でリリースタグとして使われているものを除外して削除する
 name: Delete old tags periodically
 
 on:
@@ -32,8 +32,8 @@ jobs:
 
       - name: Fetch release tags
         id: fetch-release-tags
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # env:
+        #   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           release_tags_output_string=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[].tag_name]')
           echo "release_tags_json=$release_tags_output_string" >> "$GITHUB_OUTPUT"
