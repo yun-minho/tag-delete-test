@@ -1,0 +1,49 @@
+# 古いコミットタグを定期的に削除するワークフロー
+# 実行時間の年基準で2年前のもので、リリースタグとして使われないタグを削除する
+# 例）　２０２５/07/01 に実行された場合、2023から始まるタグの中でリリースタグとして使わないもののみを削除
+name: Delete old tags periodically
+
+on:
+  schedule:
+    - cron: '0 0 1 7 *' #　毎年７月１日午前０時（UTC）に実行
+  workflow_dispatch: # 動作確認用
+
+defaults:
+  run:
+    # 明示的に指定するとpipefailなどが有効になるので指定する
+    # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#defaultsrunshell
+    shell: bash
+
+jobs:
+  delete_old_tags:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # タグ削除のため
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@4
+        with:
+          fetch-depth: 0 # 全タグ取得のため
+      - name: Calculate target year
+        id: calculate-year
+        run: |
+          current_year=$(date +'%Y')
+          target_year=$((current_year - 2))
+
+          echo "Current execution year: $current_year"
+          echo "Target year to delete tags: $target_year"
+
+          echo "target_year=$target_year" >> $GITHUB_OUTPUT
+      - name: Fetch release tags
+        id: fetch-release-tags
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release_tags=$(gh api "repos/${{ github.repository }}/releases" -jq '[.[].tag_name]')
+
+          if [ "$release_tags_json_array" == "[]" ]; then
+            echo "release_tags_list=" >> "$GITHUB_OUTPUT"  
+          else
+            echo $release_tags
+          fi
+    
