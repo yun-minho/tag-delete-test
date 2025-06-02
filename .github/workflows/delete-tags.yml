@@ -61,7 +61,7 @@ jobs:
               echo "Skipping release tag: $tag_to_check"
             else
               echo "DELETE non-release tag: $tag_to_check"
-              # git push origin --delete "$tag_to_check"
+              git push origin --delete "$tag_to_check"
             fi
           done
 
