@@ -36,7 +36,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
         run: |
-          release_tags_output_string=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[] | select(.tag_name | test(\"(^|-)${TARGET_PREFIX}[0-9]{4}\")) | .tag_name]'
+          release_tags_output_string=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[] | select(.tag_name | test("(^|-)${TARGET_PREFIX}[0-9]{4}")) | .tag_name]'
           echo "release_tags_json=$release_tags_output_string" >> "$GITHUB_OUTPUT"
           
       - name: Delete old tags
