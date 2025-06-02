@@ -36,11 +36,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
         run: |
+          # すべてのリリースタグを取得し、対象年度のもののみで絞り込む
           all_release_tags=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[] | .tag_name]')
           target_release_tags=$(echo "$all_release_tags" | jq -c --arg regex_arg "(^|-)${TARGET_PREFIX}[0-9]{4}" '[.[] | select(test($regex_arg))]')
 
-          echo $target_release_tags
-          
           echo "release_tags_json=$target_release_tags" >> "$GITHUB_OUTPUT"
           
       - name: Delete old tags
@@ -48,6 +47,7 @@ jobs:
           TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
           RELEASE_TAGS_JSON: ${{ steps.fetch-release-tags.outputs.release_tags_json }}
         run: |
+          # すべてのタグを取得後、削除対象タグを'(-)対象年度日'で絞り込む
           target_tags=$(git tag -l | grep -E "(^|-)${TARGET_PREFIX}[0-9]{4}")
 
           if [ -z "$target_tags" ]; then
@@ -57,10 +57,12 @@ jobs:
 
           release_tags_to_grep_list=""
           if [ -n "$RELEASE_TAGS_JSON" ] && [ "$RELEASE_TAGS_JSON" != "[]" ]; then
+            # 後続の処理のgrepで比較しやすくするためにJSON配列を一行ずつ出力できるように整形
             release_tags_to_grep_list=$(echo "$RELEASE_TAGS_JSON" | jq -r '.[]')
           fi
 
           echo "$target_tags" | while read tag_to_check; do
+            # リリースタグ一覧から現在比較している対象タグが完全に一致するかをチェックし、削除対象タグをさらにフィルターする
             if echo "$release_tags_to_grep_list" | grep -Fxq "$tag_to_check"; then
               echo "Skipping release tag: $tag_to_check"
             else
