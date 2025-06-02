@@ -37,7 +37,7 @@ jobs:
           TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
         run: |
           all_release_tags=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[] | .tag_name]')
-          target_release_tags=$(echo "$all_release_tags" | jq --arg regex_arg "(^|-)${TARGET_PREFIX}[0-9]{4}" '[.[] | select(test($regex_arg))]')
+          target_release_tags=$(echo "$all_release_tags" | jq -c --arg regex_arg "(^|-)${TARGET_PREFIX}[0-9]{4}" '[.[] | select(test($regex_arg))]')
 
           echo $target_release_tags
           
