@@ -43,7 +43,7 @@ jobs:
           TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
           RELEASE_TAGS_JSON: ${{ steps.fetch-release-tags.outputs.release_tags_json }}
         run: |
-          target_tags=$(git tag -l "$TARGET_PREFIX*")
+          target_tags=$(git tag -l | grep -E "(^|-)${TARGET_PREFIX}[0-9]{4}")
 
           if [ -z "$target_tags" ]; then
             echo "No tags found matching prefix '${TARGET_PREFIX}'."
@@ -66,7 +66,7 @@ jobs:
 
             if ! $is_release_tag; then
                 echo "DELETE non-release tag: $tag_to_check"
-                git push origin --delete "$tag_to_check"
+                # git push origin --delete "$tag_to_check"
             else 
                 echo "Skipping release tag: $tag_to_check"
             fi
