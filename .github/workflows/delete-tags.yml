@@ -34,8 +34,9 @@ jobs:
         id: fetch-release-tags
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_PREFIX: ${{ steps.calculate-year.outputs.target_year }}
         run: |
-          release_tags_output_string=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[].tag_name]')
+          release_tags_output_string=$(gh api "repos/${{ github.repository }}/releases" --jq '[.[] | select(.tag_name | test(\"(^|-)${TARGET_PREFIX}[0-9]{4}\")) | .tag_name]'
           echo "release_tags_json=$release_tags_output_string" >> "$GITHUB_OUTPUT"
           
       - name: Delete old tags
@@ -56,19 +57,11 @@ jobs:
           fi
 
           echo "$target_tags" | while read tag_to_check; do
-            is_release_tag=false
-
-            if [ -n "$release_tags_to_grep_list" ]; then
-              if echo "$release_tags_to_grep_list" | grep -Fxq "$tag_to_check"; then
-                is_release_tag=true
-              fi
-            fi
-
-            if ! $is_release_tag; then
-                echo "DELETE non-release tag: $tag_to_check"
-                git push origin --delete "$tag_to_check"
-            else 
-                echo "Skipping release tag: $tag_to_check"
+            if echo "$release_tags_to_grep_list" | grep -Fxq "$tag_to_check"; then
+              echo "Skipping release tag: $tag_to_check"
+            else
+              echo "DELETE non-release tag: $tag_to_check"
+              # git push origin --delete "$tag_to_check"
             fi
           done
 
